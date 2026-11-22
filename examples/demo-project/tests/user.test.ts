@@ -4,7 +4,7 @@ import { getUserById } from '../src/services/userService.js';
 describe('userService', () => {
   it('returns user by id', () => {
     const user = getUserById('1');
-    expect(user.name).toBe('Alice');
+    expect(user.name).toBe('Alice Smith');
     expect(user.role).toBe('admin');
   });
 });

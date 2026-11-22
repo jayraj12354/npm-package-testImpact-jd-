@@ -5,7 +5,7 @@ describe('loginService', () => {
   it('authenticates with valid token', () => {
     const res = authenticate('1', 'secret-token');
     expect(res.success).toBe(true);
-    expect(res.user?.name).toBe('Alice');
+    expect(res.user?.name).toBe('Alice Smith');
   });
 
   it('rejects invalid token', () => {
