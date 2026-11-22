@@ -86,9 +86,6 @@ export async function loadConfig(rootDir: string = process.cwd()): Promise<{
     let rawConfig: unknown;
 
     if (foundFile.endsWith('.ts')) {
-      // For TypeScript config, we can read dynamically or transpile using ts API if needed
-      // If executing under Node with tsx/loader or pre-transpiled, dynamic import works.
-      // Let's transpile in-memory using TypeScript compiler API for reliable zero-dependency loading.
       const tsContent = fs.readFileSync(foundFile, 'utf-8');
       const ts = await import('typescript');
       const transpiled = ts.default.transpileModule(tsContent, {
@@ -98,11 +95,17 @@ export async function loadConfig(rootDir: string = process.cwd()): Promise<{
         },
       });
 
-      // Write temporary mjs file or use data uri
-      const base64 = Buffer.from(transpiled.outputText).toString('base64');
-      const dataUri = `data:text/javascript;base64,${base64}`;
-      const mod = await import(dataUri);
-      rawConfig = mod.default ?? mod;
+      const tmpPath = path.resolve(rootDir, `.testimpact-config-${Date.now()}-${Math.random().toString(36).substring(7)}.mjs`);
+      try {
+        fs.writeFileSync(tmpPath, transpiled.outputText, 'utf-8');
+        const fileUrl = pathToFileURL(tmpPath).href;
+        const mod = await import(fileUrl);
+        rawConfig = mod.default ?? mod;
+      } finally {
+        if (fs.existsSync(tmpPath)) {
+          fs.unlinkSync(tmpPath);
+        }
+      }
     } else {
       const fileUrl = pathToFileURL(foundFile).href;
       const mod = await import(fileUrl);
