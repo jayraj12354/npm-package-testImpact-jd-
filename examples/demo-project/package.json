@@ -1,0 +1,13 @@
+{
+  "name": "demo-project",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "testimpact-jd": "file:../../testimpact-jd-0.1.0.tgz",
+    "vitest": "^3.0.8"
+  }
+}
