@@ -9,8 +9,8 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "testimpact": "./dist/cli/index.js",
-    "testimpact-jd": "./dist/cli/index.js"
+    "testimpact": "dist/cli/index.js",
+    "testimpact-jd": "dist/cli/index.js"
   },
   "files": [
     "dist",
