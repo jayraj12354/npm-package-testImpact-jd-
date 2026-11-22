@@ -145,6 +145,36 @@ export class ModuleResolver {
       return basePath;
     }
 
+    // TypeScript NodeNext / ESM support: probe .ts/.tsx when import has .js/.jsx extension
+    if (basePath.endsWith('.js')) {
+      const tsCandidate = basePath.slice(0, -3) + '.ts';
+      if (fs.existsSync(tsCandidate) && fs.statSync(tsCandidate).isFile()) {
+        return tsCandidate;
+      }
+      const tsxCandidate = basePath.slice(0, -3) + '.tsx';
+      if (fs.existsSync(tsxCandidate) && fs.statSync(tsxCandidate).isFile()) {
+        return tsxCandidate;
+      }
+    }
+    if (basePath.endsWith('.jsx')) {
+      const tsxCandidate = basePath.slice(0, -4) + '.tsx';
+      if (fs.existsSync(tsxCandidate) && fs.statSync(tsxCandidate).isFile()) {
+        return tsxCandidate;
+      }
+    }
+    if (basePath.endsWith('.mjs')) {
+      const mtsCandidate = basePath.slice(0, -4) + '.mts';
+      if (fs.existsSync(mtsCandidate) && fs.statSync(mtsCandidate).isFile()) {
+        return mtsCandidate;
+      }
+    }
+    if (basePath.endsWith('.cjs')) {
+      const ctsCandidate = basePath.slice(0, -4) + '.cts';
+      if (fs.existsSync(ctsCandidate) && fs.statSync(ctsCandidate).isFile()) {
+        return ctsCandidate;
+      }
+    }
+
     // Check with extensions (.ts, .tsx, .js, etc.)
     for (const ext of EXTENSIONS) {
       const withExt = basePath + ext;

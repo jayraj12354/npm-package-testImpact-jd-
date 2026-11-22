@@ -104,6 +104,14 @@ export class GitAnalyzer {
   }
 
   /**
+   * Gets the top-level root directory of the Git repository.
+   */
+  async getTopLevel(): Promise<string> {
+    const res = await this.execGit(['rev-parse', '--show-toplevel']);
+    return res.exitCode === 0 && res.stdout ? res.stdout : this.cwd;
+  }
+
+  /**
    * Detects changed files based on provided options.
    */
   async getChanges(options: RawGitDiffOptions = {}): Promise<GitChange[]> {
@@ -112,15 +120,22 @@ export class GitAnalyzer {
       throw new GitError(`Directory "${this.cwd}" is not a Git repository.`);
     }
 
+    const topLevel = await this.getTopLevel();
     const hasCommits = await this.hasCommits();
     const changesMap = new Map<string, GitChange>();
 
     const recordChange = (change: GitChange) => {
-      const normalized = normalizePath(change.path, this.cwd);
+      const absPath = path.isAbsolute(change.path)
+        ? change.path
+        : path.resolve(topLevel, change.path);
+      const normalized = normalizePath(absPath, this.cwd);
+
       changesMap.set(normalized, {
         ...change,
         path: normalized,
-        oldPath: change.oldPath ? normalizePath(change.oldPath, this.cwd) : undefined,
+        oldPath: change.oldPath
+          ? normalizePath(path.resolve(topLevel, change.oldPath), this.cwd)
+          : undefined,
       });
     };
 
